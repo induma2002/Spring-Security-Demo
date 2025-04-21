@@ -35,6 +35,8 @@ public class ProjectSecurityConfig {
 
     @Bean
     UserDetailsService userDetailsService(){
+
+        // Final InMemoryUserDetailManager class
         UserDetails user = User.withUsername("Induma").password("{noop}12345").authorities("admin").build();
         UserDetails userTwo = User.withUsername("GGIW").password("{bcrypt}$2a$12$gizgpy3awRhuMgO5aVTZbuXCInXBSetCEaM3nF2zRIFrKeZpWjsiW").authorities("admin").build();
         return new InMemoryUserDetailsManager(user,userTwo);
