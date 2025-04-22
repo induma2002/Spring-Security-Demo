@@ -1,5 +1,6 @@
 package com.eczybytes.springsecsection1;
 
+import com.eczybytes.springsecsection1.model.Customer;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
