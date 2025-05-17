@@ -5,16 +5,16 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-
 import static org.springframework.security.config.Customizer.withDefaults;
 
 @Configuration
-@Profile("!prod")
-public class ProjectSecurityConfig {
+@Profile("prod")
+public class ProjectSecurityProdConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
 
@@ -22,14 +22,15 @@ public class ProjectSecurityConfig {
         http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
         http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());*/
 
-        http.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
-                .csrf(csrfConfig -> csrfConfig.disable())
+        http.requiresChannel(rcc -> rcc.anyRequest().requiresSecure())
+                .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((requests) -> requests
                 .requestMatchers("/myAccount","balance","cards","loans").authenticated()
                 .requestMatchers("/Contact","/notes","/register").permitAll());
         http.formLogin(withDefaults());
-        http.httpBasic(hbc ->  hbc
+        http.httpBasic(hbc -> hbc
                 .authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+
         return http.build();
     }
 
