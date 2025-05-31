@@ -1,5 +1,6 @@
 package com.eczybytes.springsecsection1.config;
 
+import com.eczybytes.springsecsection1.exceptionhandling.CustomAccessDeniedHandler;
 import com.eczybytes.springsecsection1.exceptionhandling.CustomBasicAuthenticationEntryPoint;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -17,21 +18,23 @@ import static org.springframework.security.config.Customizer.withDefaults;
 public class ProjectSecurityConfig {
     @Bean
     SecurityFilterChain defaultSecurityFilterChain(HttpSecurity http) throws Exception {
-
-/*        http.authorizeHttpRequests((requests) -> requests.anyRequest().authenticated());
-        http.authorizeHttpRequests((requests) -> requests.anyRequest().permitAll());
-        http.authorizeHttpRequests((requests) -> requests.anyRequest().denyAll());*/
-
-        http.requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
+        http.sessionManagement(sessionConfig -> sessionConfig.invalidSessionUrl("/reLogin"))
+                .requiresChannel(rcc -> rcc.anyRequest().requiresInsecure())
                 .csrf(csrfConfig -> csrfConfig.disable())
                 .authorizeHttpRequests((requests) -> requests
-                .requestMatchers("/myAccount","balance","cards","loans").authenticated()
-                .requestMatchers("/Contact","/notes","/register").permitAll());
+                        .requestMatchers("/myAccount", "/balance", "/cards", "/loans").authenticated()
+                        .requestMatchers("/Contact", "/notes", "/register", "/reLogin").permitAll()
+                        .requestMatchers("/", "/favicon.ico", "/error", "/webjars/**", "/css/**", "/js/**", "/images/**").permitAll()
+                        .anyRequest().denyAll()
+                );
+
         http.formLogin(withDefaults());
-        http.httpBasic(hbc ->  hbc
-                .authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        http.httpBasic(hbc -> hbc.authenticationEntryPoint(new CustomBasicAuthenticationEntryPoint()));
+        http.exceptionHandling(ehc -> ehc.accessDeniedHandler(new CustomAccessDeniedHandler()));
+
         return http.build();
     }
+
 
     @Bean
     PasswordEncoder passwordEncoder() {
